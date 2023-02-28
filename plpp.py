@@ -1,6 +1,5 @@
 # This script will convert CrealitySlicer Laser Gcode for use with mriscoc/Ender3V2S1 Pro firmware.
-# It will convert all Inline laser power control G0/G1 commands to M3 commands immediately preceeding their respective moves, 
-# including an 8-bit unsigned int conversion from Creality's 0-999 range for laser power
+# It will convert all Inline laser power control G0/G1 commands to M3 commands immediately preceeding their respective moves
 
 import sys
 
@@ -33,21 +32,24 @@ with open(file_name, 'r+') as f:
                 gcode = line.strip('\n')			# no comment, just remove newline
             if "S" in gcode:
                 new_gcode, power = gcode.split("S",1)		# extract inline power
-                new_power = int(int(power)//3.91)			# divide Creality's 0-999 power value by 3.91 to get 8-bit int for M3 power value
-                new_code += "M3 O" + str(new_power) + '\n'	# write M3 line to change power level before next move
+                #new_power = int(int(power)//3.91)			# divide Creality's 0-999 power value by 3.91 to get 8-bit int for M3 power value
+                #new_code += "M3 O" + str(new_power) + '\n'	# write M3 line to change power level before next move
+                new_code += "M3 S" + str(power) + '\n'      # write M3 line to change power level before next move
                 if comment != "":
                     new_code += new_gcode + ' ; ' + comment + '\n'  # write gcode and comment without inline power
                     if debug:
                         print("Line: " + line.strip('\n'))
                         print("Changed to:")
-                        print(" M3 0" + str(new_power))
+                        #print(" M3 0" + str(new_power))
+                        print(" M3 S" + str(power))
                         print(" " + new_gcode + " ; " + comment + '\n')
                 else: 
                     new_code += new_gcode + '\n'
                     if debug:
                         print("Line: " + line.strip('\n'))
                         print("Changed to:")
-                        print(" M3 0" + str(new_power))
+                        #print(" M3 0" + str(new_power))
+                        print(" M3 S" + str(power))
                         print(" " + new_gcode + '\n')
             else:
                 new_code += line				# no inline power found, keep this line unchanged
